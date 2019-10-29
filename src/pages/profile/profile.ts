@@ -4,7 +4,8 @@ import { StorageService } from '../../services/storage.service';
 import { ClienteDTO } from '../../models/cliente.dto';
 import { ClienteService } from '../../services/domain/cliente.service';
 import { API_CONFIG } from '../../config/api.config';
-import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
+import { Camera, CameraOptions } from '@ionic-native/camera';
+
 
 @IonicPage()
 @Component({
@@ -26,6 +27,10 @@ export class ProfilePage {
   }
 
   ionViewDidLoad() {
+    this.loadData();
+  }
+
+  loadData() {
     let localUser = this.storage.getLocalUser();
     if (localUser && localUser.email) {
       this.clienteService.findByEmail(localUser.email)
@@ -41,7 +46,7 @@ export class ProfilePage {
     }
     else {
       this.navCtrl.setRoot('HomePage');
-    }
+    }    
   }
 
   getImageIfExists() {
@@ -68,5 +73,19 @@ export class ProfilePage {
      this.cameraOn = false;
     }, (err) => {
     });
+  }
+
+  sendPicture() {
+    this.clienteService.uploadPicture(this.picture)
+      .subscribe(response => {
+        this.picture = null;
+        this.loadData();
+      },
+      error => {
+      });
+  }
+
+  cancel() {
+    this.picture = null;
   }
 }
